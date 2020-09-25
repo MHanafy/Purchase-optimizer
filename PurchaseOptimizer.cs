@@ -5,6 +5,8 @@ using Gluh.TechnicalTest.Models;
 using Gluh.TechnicalTest.Database;
 using Gluh.TechnicalTest.Domain;
 using System.Linq;
+using Gluh.TechnicalTest.Domain.BruteForce;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Gluh.TechnicalTest
 {
@@ -21,7 +23,7 @@ namespace Gluh.TechnicalTest
      *      
      * 3.  A realworld functionality should consider other aspects, like delivery time, supplier trustworthiness, contract obligations, etc...
      *   And potentially a preferred strategy, of which different factors get different weights.
-     *   I'm puposfully neglecting these dimensions because they're not mentioned in the requirements.
+     *   I'm purposfully neglecting these dimensions because they're not mentioned in the requirements.
      *   
      * 4.  Only POs with at least a single physical product are subject to shipping calculations.
      *   i.e. When a PO has no physical items, shipping fee doesn't apply.
@@ -43,12 +45,27 @@ namespace Gluh.TechnicalTest
         public void Optimize(List<PurchaseRequirement> purchaseRequirements)
         {
             var order = new List<PurchaseOrder>();
+
             foreach (var requirment in purchaseRequirements)
             {
-                foreach(var stock in requirment.Product.Stock)
+                var vendors = new PurchaseOrderLine[requirment.Product.Stock.Count][];
+                var maxAvailable = 0;
+                for (int i = 0; i < requirment.Product.Stock.Count ; i++)
                 {
+                    vendors[i] = GetLines(requirment.Quantity, requirment.Product.Stock[i]);
+                    maxAvailable += requirment.Product.Stock[i].StockOnHand;
                 }
-                //var lines = requirment.Product.Stock.Select(x=> new PurchaseOrderLine() )
+
+                var premuter = new Premuting<PurchaseOrderLine>(vendors);
+                var result = new List<PurchaseOrderLine[]>();
+                var target = Math.Min(maxAvailable, requirment.Quantity);
+                premuter.Premute(x =>
+                {
+                    if (IsValidCombination(x, target)) result.Add(x);
+                });
+
+
+
             }
 
             /*
@@ -59,6 +76,22 @@ namespace Gluh.TechnicalTest
              *  Phase2: do a matrix comparison to see if processing order changes total cost
              */
             
+        }
+
+        private bool IsValidCombination(PurchaseOrderLine[] combination, int target)
+        {
+            return combination.Sum(x => x.Quantity) == target;
+        }
+
+        private PurchaseOrderLine[] GetLines(int required, ProductStock stock)
+        {
+            var target = Math.Min(required, stock.StockOnHand);
+            var result = new PurchaseOrderLine[target+1];
+            for (int i = 0; i <= target; i++)
+            {
+                result[i] = new PurchaseOrderLine(stock.Supplier, stock.Product.ToProduct(stock.Cost), i);
+            }
+            return result;
         }
     }
 }

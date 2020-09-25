@@ -1,4 +1,6 @@
-﻿namespace Gluh.TechnicalTest.Domain
+﻿using Gluh.TechnicalTest.Database;
+
+namespace Gluh.TechnicalTest.Domain
 {
 
     public interface IPurchaseOrderLine
@@ -10,11 +12,14 @@
 
     public class PurchaseOrderLine : IPurchaseOrderLine
     {
-        public PurchaseOrderLine(Product product, int quantity)
+        public PurchaseOrderLine(Supplier supplier, IProduct product, int quantity)
         {
+            Supplier = supplier;
             Product = product;
             Quantity = quantity;
         }
+        Supplier Supplier { get; }
+
         public IProduct Product { get; private set; }
 
         public int Quantity {get; private set; }
