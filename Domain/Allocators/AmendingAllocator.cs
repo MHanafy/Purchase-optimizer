@@ -1,7 +1,6 @@
 ﻿using Gluh.TechnicalTest.Database;
 using Gluh.TechnicalTest.Domain.Allocators;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Gluh.TechnicalTest.Domain
 {
@@ -17,7 +16,7 @@ namespace Gluh.TechnicalTest.Domain
         private HashSet<Supplier> _existingSuppliers;
         protected override void OnAllocating(IRequirementBatch batch)
         {
-            _existingSuppliers = batch.PurchaseOrders.Select(x => x.Supplier).Distinct().ToHashSet();
+            _existingSuppliers = batch.AllocatedSuppliers;
             base.OnAllocating(batch);
         }
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Gluh.TechnicalTest.Database
+﻿namespace Gluh.TechnicalTest.Database
 {
     public class ProductStock
     {

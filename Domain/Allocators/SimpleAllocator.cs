@@ -12,7 +12,7 @@ namespace Gluh.TechnicalTest.Domain.Allocators
         }
         protected override void AllocateAll(IRequirementBatch batch)
         {
-            foreach (var req in batch.Unfulfilled)
+            foreach (var req in batch.Unallocated)
             {
                 var stocks = batch.Cache.GetAvailableStock(req.Product);
                 var allocated = 0;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Gluh.TechnicalTest.Domain
+﻿namespace Gluh.TechnicalTest.Domain
 {
     public interface IAllocator
     {

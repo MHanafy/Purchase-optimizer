@@ -1,9 +1,5 @@
 ﻿using Gluh.TechnicalTest.Domain.BruteForce;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Threading;
 
 namespace Gluh.TechnicalTest
 {

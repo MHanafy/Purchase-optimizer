@@ -15,6 +15,7 @@ namespace Gluh.TechnicalTest.Domain
         public PurchaseOrderLine(Supplier supplier, IProduct product, decimal price, int quantity) : base(product, quantity)
         {
             Supplier = supplier;
+            Price = price;
         }
         public decimal Price { get; }
         public Supplier Supplier { get;}

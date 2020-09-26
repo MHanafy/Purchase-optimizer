@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Gluh.TechnicalTest.Database;
+﻿using Gluh.TechnicalTest.Database;
 
 namespace Gluh.TechnicalTest.Models
 {
