@@ -1,13 +1,15 @@
-﻿namespace Gluh.TechnicalTest.Domain
+﻿using Gluh.TechnicalTest.Domain.Allocators;
+
+namespace Gluh.TechnicalTest.Domain
 {
 
     /// <summary>
     /// <para>Tries to fulfull all possible requirements from the cheapest suppliers that either have no shipping cost, or has free shipping for the requirement.</para>
     /// i.e. shipping cost is zero, or total exceeds ShippingCostMaxOrderValue, hence can't guarantee full allocation
     /// </summary>
-    class BasicAllocator : AllocatorBase
+    class NoShippingAllocator : SimpleAllocator
     {
-        public BasicAllocator(int priority = 1) : base(priority)
+        public NoShippingAllocator(int priority = 1) : base(priority)
         {
         }
 
@@ -16,6 +18,7 @@
             batch.ProcessNoStock();
             base.OnAllocating(batch);
         }
+
         protected override bool ShouldAllocate(Stock stock, int quantity)
         {
             var cost = quantity * stock.Cost;

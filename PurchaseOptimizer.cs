@@ -69,7 +69,7 @@ namespace Gluh.TechnicalTest
 
         protected virtual IEnumerable<IAllocator> GetAllocators()
         {
-            return new List<IAllocator> {new BasicAllocator(), new ExpandingAllocator() };
+            return new List<IAllocator> {new NoShippingAllocator(), new AmendingAllocator() };
         }
 
         private List<PurchaseOrder> maxPo;

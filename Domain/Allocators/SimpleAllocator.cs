@@ -1,28 +1,17 @@
 ﻿using System;
 
-namespace Gluh.TechnicalTest.Domain
+namespace Gluh.TechnicalTest.Domain.Allocators
 {
-    public interface IAllocator
+    /// <summary>
+    /// Provides a basis for all allocators that act upon individual requirements
+    /// </summary>
+    public abstract class SimpleAllocator : AllocatorBase
     {
-        void Allocate(IRequirementBatch batch);
-        /// <summary>
-        /// Defines order of execution, lower priority executes first.
-        /// </summary>
-        int Priority { get; }
-    }
-
-    public abstract class AllocatorBase : IAllocator
-    {
-        public AllocatorBase(int priority = 0)
+        public SimpleAllocator(int priority = 0) : base(priority)
         {
-            Priority = priority;
         }
-        public int Priority { get; }
-        protected virtual bool ShouldAllocate(Stock stock, int quantity) => true;
-        protected virtual void OnAllocating(IRequirementBatch batch) { }
-        public virtual void Allocate(IRequirementBatch batch)
+        protected override void AllocateAll(IRequirementBatch batch)
         {
-            OnAllocating(batch);
             foreach (var req in batch.Unfulfilled)
             {
                 var stocks = batch.Cache.GetAvailableStock(req.Product);
@@ -40,6 +29,6 @@ namespace Gluh.TechnicalTest.Domain
                 }
             }
         }
-
+        protected virtual bool ShouldAllocate(Stock stock, int quantity) => true;
     }
 }

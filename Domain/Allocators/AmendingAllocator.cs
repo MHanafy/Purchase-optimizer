@@ -1,5 +1,5 @@
 ﻿using Gluh.TechnicalTest.Database;
-using System;
+using Gluh.TechnicalTest.Domain.Allocators;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,9 +8,9 @@ namespace Gluh.TechnicalTest.Domain
     /// <summary>
     /// Allocates to existing POs if their vendors offer the cheapest price without incurring shipping cost
     /// </summary>
-    public class ExpandingAllocator : AllocatorBase
+    public class AmendingAllocator : SimpleAllocator
     {
-        public ExpandingAllocator(int priority = 10) : base(priority)
+        public AmendingAllocator(int priority = 10) : base(priority)
         {
         }
 
