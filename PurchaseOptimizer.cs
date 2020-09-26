@@ -44,25 +44,20 @@ namespace Gluh.TechnicalTest
         public void Optimize(List<PurchaseRequirement> purchaseRequirements)
         {
             var order = new List<PurchaseOrder>();
-            var fulfilled = Filter(purchaseRequirements, out var purchaseOrder, out var unfulfilledOrder);
+            var processed = Filter(purchaseRequirements, out var purchaseOrder, out var unfulfilledOrder);
+            foreach (var req in processed)
+            {
+                purchaseRequirements.Remove(req);
+            }
 
             var requirements = purchaseRequirements.Select(x=>GetAllPremutations(x)).Where(x=>x.Length>0).ToArray();
 
             var premuter = new Premuting<PurchaseOrderLine[]>(requirements);
-            //todo: Optimize based on the lowest possible cost
             var progress = new ProgressBar();
             premuter.Premute((x, y, z) => ProcessPo(x, y, z, progress));
             progress.Dispose();
             Console.WriteLine($"MaxVal: {maxVal:c} MinVal: {minVal:c}");
-
-            /*
-             * Phase1: For each product
-             *  - Get lowest total cost for available quantity, considering shipping cost
-             *  - potentially create multiple orders until all the quantity if fulfilled.
-             *  
-             *  Phase2: do a matrix comparison to see if processing order changes total cost
-             */
-            
+           
         }
 
         /// <summary>
@@ -75,12 +70,13 @@ namespace Gluh.TechnicalTest
         {
             purchaseOrders = new Dictionary<Supplier,IPurchaseOrder>();
             unfulfilledOrder = new UnfulfilledOrder();
-            var fullfilled = new List<PurchaseRequirement>();
+            var processed = new List<PurchaseRequirement>();
             foreach (var req in requirements)
             {
                 if (req.Product.Stock.Sum(x => x.StockOnHand) == 0)
                 {
                     unfulfilledOrder.Add(new OrderLineBase(req.Product.ToProduct(0), req.Quantity));
+                    processed.Add(req);
                 }
                 
                 var stocks = req.Product.Stock
@@ -90,19 +86,26 @@ namespace Gluh.TechnicalTest
                 var allocated = 0;
                 foreach (var stock in stocks)
                 {
-                    if (stock.Supplier.ShippingCost > 0) break;
                     var quantity = Math.Min(req.Quantity - allocated, stock.StockOnHand);
-                    allocated += quantity;
-                    if (!purchaseOrders.ContainsKey(stock.Supplier))
+                    var cost = quantity * stock.Cost;
+                    if (stock.Supplier.ShippingCost == 0 || stock.Supplier.ShippingCostMaxOrderValue < cost)
                     {
-                        purchaseOrders.Add(stock.Supplier, new PurchaseOrder(stock.Supplier));
+                        allocated += quantity;
+                        if (!purchaseOrders.ContainsKey(stock.Supplier))
+                        {
+                            purchaseOrders.Add(stock.Supplier, new PurchaseOrder(stock.Supplier));
+                        }
+                        var line = new PurchaseOrderLine(stock.Supplier, stock.Product.ToProduct(stock.Cost), req.Quantity);
+                        purchaseOrders[stock.Supplier].Add(line);
+                        if (quantity == allocated) break;
                     }
-                    var line = new PurchaseOrderLine(stock.Supplier, stock.Product.ToProduct(stock.Cost), req.Quantity);
-                    purchaseOrders[stock.Supplier].Add(line);
+                    else break;
                 }
-                if (allocated == req.Quantity) fullfilled.Add(req);
+
+                req.Quantity -= allocated;
+                if (req.Quantity == 0) processed.Add(req);
             }
-            return fullfilled;
+            return processed;
         }
 
         private List<PurchaseOrder> maxPo;
@@ -127,25 +130,6 @@ namespace Gluh.TechnicalTest
             progress.Report(current / total);
         }
 
-        //enum BruteForceStrategy
-        //{
-        //    /// <summary>
-        //    /// All possible combinations are tried, this can result in very long calculations
-        //    /// </summary>
-        //    All,
-        //    /// <summary>
-        //    /// Tries buying 0 or all from each supplier.
-        //    /// </summary>
-        //    MinPrice
-        //}
-        //private PurchaseOrderLine[][] GetMinMaxPremutations(PurchaseRequirement requirement)
-        //{
-        //    for (int i = 0; i < requirement.Product.Stock.Count; i++)
-        //    {
-        //        vendors[i] = GetLines(requirement.Quantity, requirement.Product.Stock[i]);
-        //        maxAvailable += requirement.Product.Stock[i].StockOnHand;
-        //    }
-        //}
         private PurchaseOrderLine[][] GetAllPremutations(PurchaseRequirement requirement)
         {
             var vendors = new PurchaseOrderLine[requirement.Product.Stock.Count][];
