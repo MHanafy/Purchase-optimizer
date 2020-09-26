@@ -3,24 +3,24 @@
 namespace Gluh.TechnicalTest.Domain
 {
 
-    public interface IProductStock
+    public interface IStock
     {
-        Product Product { get; }
+        IProduct Product { get; }
         int Quantity { get; }
         decimal Cost { get; }
         Supplier Supplier { get; }
     }
 
-    public class ProductStock : IProductStock
+    public class Stock : IStock
     {
-        public ProductStock(Product product, Supplier supplier, int quantity, decimal cost)
+        public Stock(IProduct product, Supplier supplier, int quantity, decimal cost)
         {
             Product = product;
             Supplier = supplier;
             Quantity = quantity;
             Cost = cost;
         }
-        public Product Product { get; }
+        public IProduct Product { get; }
 
         public int Quantity { get; set; }
 

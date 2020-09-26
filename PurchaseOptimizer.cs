@@ -43,7 +43,7 @@ namespace Gluh.TechnicalTest
         /// </summary>
         public void Optimize(List<PurchaseRequirement> purchaseRequirements)
         {
-            var order = new List<PurchaseOrder>();
+            var batch = new RequirementBatch(purchaseRequirements);
             var processed = Filter(purchaseRequirements, out var purchaseOrder, out var unfulfilledOrder);
             foreach (var req in processed)
             {
@@ -75,7 +75,7 @@ namespace Gluh.TechnicalTest
             {
                 if (req.Product.Stock.Sum(x => x.StockOnHand) == 0)
                 {
-                    unfulfilledOrder.Add(new OrderLineBase(req.Product.ToProduct(0), req.Quantity));
+                    unfulfilledOrder.Add(new OrderLineBase(req.Product.ToProduct(), req.Quantity));
                     processed.Add(req);
                 }
                 
@@ -95,7 +95,7 @@ namespace Gluh.TechnicalTest
                         {
                             purchaseOrders.Add(stock.Supplier, new PurchaseOrder(stock.Supplier));
                         }
-                        var line = new PurchaseOrderLine(stock.Supplier, stock.Product.ToProduct(stock.Cost), req.Quantity);
+                        var line = new PurchaseOrderLine(stock.Supplier, stock.Product.ToProduct(), stock.Cost, req.Quantity);
                         purchaseOrders[stock.Supplier].Add(line);
                         if (quantity == allocated) break;
                     }
@@ -161,7 +161,7 @@ namespace Gluh.TechnicalTest
             var result = new PurchaseOrderLine[target+1];
             for (int i = 0; i <= target; i++)
             {
-                result[i] = new PurchaseOrderLine(stock.Supplier, stock.Product.ToProduct(stock.Cost), i);
+                result[i] = new PurchaseOrderLine(stock.Supplier, stock.Product.ToProduct(), stock.Cost, i);
             }
             return result;
         }

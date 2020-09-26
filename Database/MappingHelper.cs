@@ -7,9 +7,9 @@ namespace Gluh.TechnicalTest.Database
 {
     public static class MappingHelper
     {
-        public static IProduct ToProduct(this Product product, decimal cost)
+        public static IProduct ToProduct(this Product product)
         {
-            return new Domain.Product(product.ID, product.Name, cost, product.Type);
+            return new Domain.Product(product.ID, product.Name, product.Type);
         }
     }
 }

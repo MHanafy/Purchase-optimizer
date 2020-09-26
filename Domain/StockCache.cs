@@ -1,46 +1,10 @@
-﻿using Gluh.TechnicalTest.Models;
-using System;
+﻿using Gluh.TechnicalTest.Database;
+using Gluh.TechnicalTest.Models;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Gluh.TechnicalTest.Domain
 {
-
-
-    /*
-                     if (req.Product.Stock.Sum(x => x.StockOnHand) == 0)
-            {
-                unfulfilledOrder.Add(new OrderLineBase(req.Product.ToProduct(0), req.Quantity));
-                processed.Add(req);
-            }
-
-            var stocks = req.Product.Stock
-                .Where(x => x.StockOnHand > 0)
-                .OrderByDescending(x => x.Cost);
-
-            var allocated = 0;
-            foreach (var stock in stocks)
-            {
-                var quantity = Math.Min(req.Quantity - allocated, stock.StockOnHand);
-                var cost = quantity * stock.Cost;
-                if (stock.Supplier.ShippingCost == 0 || stock.Supplier.ShippingCostMaxOrderValue < cost)
-                {
-                    allocated += quantity;
-                    if (!purchaseOrders.ContainsKey(stock.Supplier))
-                    {
-                        purchaseOrders.Add(stock.Supplier, new PurchaseOrder(stock.Supplier));
-                    }
-                    var line = new PurchaseOrderLine(stock.Supplier, stock.Product.ToProduct(stock.Cost), req.Quantity);
-                    purchaseOrders[stock.Supplier].Add(line);
-                    if (quantity == allocated) break;
-                }
-                else break;
-            }
-
-            req.Quantity -= allocated;
-            if (req.Quantity == 0) processed.Add(req);
-     */
     public interface IStockCache
     {
         /// <summary>
@@ -48,20 +12,31 @@ namespace Gluh.TechnicalTest.Domain
         /// </summary>
         /// <param name="product"></param>
         /// <returns></returns>
-        IEnumerable<ProductStock> GetAvailableStock(Product product);
+        IEnumerable<Stock> GetAvailableStock(IProduct product, Supplier supplier = null);
     }
 
-    public class StockCache
+    public class StockCache : IStockCache
     {
-        private readonly Dictionary<Product, List<ProductStock>> _stock;
+        private readonly Dictionary<IProduct,List<Stock>> _stock;
         //Again this is a bad practice, domain should be isolated from data layer.
         public StockCache(List<PurchaseRequirement> requirements)
         {
-            _stock = new Dictionary<Product, List<ProductStock>>();
+            _stock = new Dictionary<IProduct, List<Stock>>();
             foreach (var req in requirements)
             {
-
+                var product = req.Product.ToProduct();
+                var stockList = req.Product.Stock
+                    .Where(x=>x.StockOnHand > 0)
+                    .Select(x => new Stock(product, x.Supplier, x.StockOnHand, x.Cost))
+                    .ToList();
+                _stock.Add(product, stockList);
             }
+        }
+
+        public IEnumerable<Stock> GetAvailableStock(IProduct product, Supplier supplier = null)
+        {
+            return supplier == null ? _stock[product].Where(x=>x.Quantity > 0)
+                : _stock[product].Where(x => x.Supplier == supplier && x.Quantity > 0);
         }
     }
 }
