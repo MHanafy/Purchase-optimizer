@@ -14,7 +14,7 @@ namespace Gluh.TechnicalTest.Domain.Allocators
         {
             foreach (var req in batch.Unallocated)
             {
-                var stocks = batch.Cache.GetAvailableStock(req.Product);
+                var stocks = batch.GetAvailableStock(req.Product);
                 var allocated = 0;
                 foreach (var stock in stocks)
                 {

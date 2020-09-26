@@ -1,4 +1,6 @@
-﻿namespace Gluh.TechnicalTest.Domain
+﻿using System;
+
+namespace Gluh.TechnicalTest.Domain
 {
     public interface IAllocator
     {
@@ -7,15 +9,28 @@
         /// Defines order of execution, lower priority executes first.
         /// </summary>
         int Priority { get; }
+        int Complexity { get; }
+        event EventHandler<ProgressEventArgs> Progress;
     }
 
     public abstract class AllocatorBase : IAllocator
     {
-        public AllocatorBase(int priority = 0)
+        public AllocatorBase(int priority = 0, int complexity = 1)
         {
             Priority = priority;
+            Complexity = complexity;
         }
         public int Priority { get; }
+        /// <summary>
+        /// Used to indicate complexity, for progress reporting.
+        /// </summary>
+        public int Complexity { get; }
+
+        public event EventHandler<ProgressEventArgs> Progress;
+        protected void OnProgress(bool done, long current = 1, long total = 1, string activity = null)
+        {
+            Progress?.Invoke(this, new ProgressEventArgs(done, current, total, activity));
+        }
 
         protected abstract void AllocateAll(IRequirementBatch batch);
   
@@ -23,6 +38,7 @@
         {
             OnAllocating(batch);
             AllocateAll(batch);
+            OnProgress(true);
         }
 
         /// <summary>

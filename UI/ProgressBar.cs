@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gluh.TechnicalTest.UI;
+using System;
 using System.Text;
 using System.Threading;
 
@@ -7,9 +8,9 @@ namespace Gluh.TechnicalTest
     /// <summary>
     /// An ASCII progress bar
     /// </summary>
-    public class ProgressBar : IDisposable, IProgress<double>
+    public class ProgressBar : IDisposable, IProgress
     {
-        private const int blockCount = 10;
+        private const int blockCount = 40;
         private readonly TimeSpan animationInterval = TimeSpan.FromSeconds(1.0 / 8);
         private const string animation = @"|/-\";
         private bool showProgressBar = true;
@@ -17,8 +18,9 @@ namespace Gluh.TechnicalTest
         private readonly Timer timer;
 
         private double currentProgress = 0;
+        private string _activity;
         private string currentText = string.Empty;
-        private bool disposed = false;
+        private bool disabled = false;
         private int animationIndex = 0;
 
 
@@ -36,18 +38,30 @@ namespace Gluh.TechnicalTest
             }
         }
 
-        public void Report(double value)
+        public void Show()
+        {
+            disabled = false; 
+            showProgressBar = true;
+        }
+        public void Hide()
+        {
+            UpdateText(string.Empty);
+            disabled = true;
+            showProgressBar = false;
+        }
+        public void Report(double value, string activity = null)
         {
             // Make sure value is in [0..1] range
             value = Math.Max(0, Math.Min(1, value));
             Interlocked.Exchange(ref currentProgress, value);
+            Interlocked.Exchange(ref _activity, activity);
         }
 
         private void TimerHandler(object state)
         {
             lock (timer)
             {
-                if (disposed) return;
+                if (disabled) return;
 
 
                 string text = "";
@@ -55,11 +69,10 @@ namespace Gluh.TechnicalTest
                 {
                     int progressBlockCount = (int)(currentProgress * blockCount);
                     int percent = (int)(currentProgress * 100);
-                    text = string.Format("[{0}{1}] {2,3}% {3}",
-                           new string('#', progressBlockCount),
-                           new string('-', blockCount - progressBlockCount),
-                           percent,
-                           animation[animationIndex++ % animation.Length]);
+                    string barCurrent = new string('#', progressBlockCount);
+                    string barRemaining = new string('-', blockCount - progressBlockCount);
+                    char anim = animation[animationIndex++ % animation.Length];
+                    text = string.Format($"[{barCurrent}{barRemaining}] {percent,3}% {anim}{(_activity==null?null:$" - {_activity}")}");
                 }
                 else
                 {
@@ -117,7 +130,7 @@ namespace Gluh.TechnicalTest
         {
             lock (timer)
             {
-                disposed = true;
+                disabled = true;
                 UpdateText(string.Empty);
             }
         }

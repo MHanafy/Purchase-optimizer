@@ -7,25 +7,33 @@ namespace Gluh.TechnicalTest.Domain.Allocators
 {
     public class BestCombinationAllocator : AllocatorBase
     {
-        public BestCombinationAllocator(int priority = 90) : base(priority)
+        public BestCombinationAllocator(int priority = 90) : base(priority, 10)
         {
+        }
+
+        protected override void OnAllocating(IRequirementBatch batch)
+        {
+            //ensure no stock items are removed to avoid processing unnecessary combinations.
+            batch.ProcessNoStock();
+            base.OnAllocating(batch);
         }
 
         protected override void AllocateAll(IRequirementBatch batch)
         {
             Reset();
             var requirements = batch.Unallocated
-                .Select(x => GetAllPremutations(x, batch.Cache.GetAvailableStock(x.Product).ToList()))
+                .Select(x => GetAllPremutations(x, batch.GetAvailableStock(x.Product).ToList()))
                 .ToArray();
 
             var premuter = new Premuting<PurchaseOrderLine[]>(requirements);
-            var progress = new ProgressBar();
-            premuter.Premute((combination, y, z) => ProcessPo(batch, combination, y, z, progress));
+            premuter.Premute((combination, current, total) => ProcessPo(batch, combination, current, total));
             foreach (var item in _cheapest)
             {
                 batch.AddPurchaseOrderLine(item);
             };
-            progress.Dispose();
+            OnProgress(true);
+            Console.WriteLine();
+            Console.WriteLine($"{nameof(BestCombinationAllocator)} - Cheapest {_lowestTotal} Most expensive: {_highestTotal}");
         }
 
         private void Reset()
@@ -41,7 +49,7 @@ namespace Gluh.TechnicalTest.Domain.Allocators
 
         private IEnumerable<IPurchaseOrderLine> _mostExpensive;
         private decimal _highestTotal;
-        private void ProcessPo(IRequirementBatch batch, PurchaseOrderLine[][] lines, long total, long current, ProgressBar progress)
+        private void ProcessPo(IRequirementBatch batch, PurchaseOrderLine[][] lines, long current, long total)
         {
             var supplierLines = lines.SelectMany(x => x);
             var cost = batch.CalculateEffectiveCost(supplierLines);
@@ -55,7 +63,7 @@ namespace Gluh.TechnicalTest.Domain.Allocators
                 _cheapest = supplierLines;
                 _lowestTotal = cost;
             }
-            progress.Report(current / total);
+            OnProgress(false, current, total, $"trying {current:n0}/{total:n0} combination to save you money");
         }
 
         private PurchaseOrderLine[][] GetAllPremutations(IRequirement requirement, IList<Stock> stocks)

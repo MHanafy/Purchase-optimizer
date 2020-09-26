@@ -9,7 +9,7 @@ namespace Gluh.TechnicalTest.Domain
     /// </summary>
     public class AmendingAllocator : SimpleAllocator
     {
-        public AmendingAllocator(int priority = 10) : base(priority)
+        public AmendingAllocator(int priority = 20) : base(priority)
         {
         }
 

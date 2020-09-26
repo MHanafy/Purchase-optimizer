@@ -56,7 +56,7 @@ namespace Gluh.TechnicalTest.Domain.BruteForce
                 if (index >= data.Length - 1)
                 {
                     current++;
-                    action((T[]) result.Clone(), _total, current);
+                    action((T[]) result.Clone(), current, _total);
                 }
                 else
                 {

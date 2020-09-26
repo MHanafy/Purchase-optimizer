@@ -42,22 +42,43 @@ namespace Gluh.TechnicalTest
         {
             var batch = new RequirementBatch(purchaseRequirements);
 
+            _progress.Show();
             foreach (var allocator in _allocators)
             {
                 allocator.Allocate(batch);
             }
+            _progress.Hide();
         }
 
         private readonly List<IAllocator> _allocators;
-
+        private readonly ProgressBar _progress;
         public PurchaseOptimizer()
         {
             _allocators = GetAllocators().OrderBy(x => x.Priority).ToList();
+            foreach (var allocator in _allocators)
+            {
+                allocator.Progress += Allocator_Progress;
+            }
+            _progress = new ProgressBar(false);
+        }
+
+        private void Allocator_Progress(object sender, ProgressEventArgs e)
+        {
+            var cIndex = _allocators.IndexOf((IAllocator)sender);
+            float current = 0;
+            float total = 0;
+            for (int i = 0; i < _allocators.Count; i++)
+            {
+                total += _allocators[i].Complexity;
+                if(i<cIndex) current+= _allocators[i].Complexity; 
+            }
+            current += _allocators[cIndex].Complexity * e.Percentage;
+            _progress.Report(current / total, e.Activity);
         }
 
         protected virtual IEnumerable<IAllocator> GetAllocators()
         {
-            return new List<IAllocator> {new NoShippingAllocator(), new AmendingAllocator(), new BestCombinationAllocator() };
+            return new List<IAllocator> {new NoShippingAllocator(), new AmendingAllocator(), new BestCombinationAllocator(), new NostockAllocator(1)};
         }
 
 

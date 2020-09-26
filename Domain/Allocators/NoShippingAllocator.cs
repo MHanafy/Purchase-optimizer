@@ -9,14 +9,8 @@ namespace Gluh.TechnicalTest.Domain
     /// </summary>
     class NoShippingAllocator : SimpleAllocator
     {
-        public NoShippingAllocator(int priority = 1) : base(priority)
+        public NoShippingAllocator(int priority = 10) : base(priority)
         {
-        }
-
-        protected override void OnAllocating(IRequirementBatch batch)
-        {
-            batch.ProcessNoStock();
-            base.OnAllocating(batch);
         }
 
         protected override bool ShouldAllocate(Stock stock, int quantity)
