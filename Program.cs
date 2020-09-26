@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace Gluh.TechnicalTest
 {
@@ -25,14 +27,31 @@ namespace Gluh.TechnicalTest
 
 
             var premuter = new Premuting<string>(data1);
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var mutations = premuter.GetPremutations();
-            stopwatch.Stop();
+            //var stopwatch = new Stopwatch();
+            //stopwatch.Start();
+            //var mutations = premuter.GetPremutations();
+            //stopwatch.Stop();
 
-            premuter.Premute(x => Console.WriteLine(string.Join('-', x)));
 
-            Console.WriteLine($"time: {stopwatch.ElapsedMilliseconds} count: {mutations.Length}");
+            //using (var progress = new ProgressBar())
+            //{
+            //    for (int i = 0; i <= 1000; i++)
+            //    {
+            //        progress.Report((double)i / 100);
+            //        Thread.Sleep(20);
+            //    }
+            //}
+            //Console.WriteLine("Done.");
+            var progress = new ProgressBar();
+
+
+            premuter.Premute((x,y,z) =>
+            {
+                //Console.WriteLine($"{string.Join('-', x)}");
+                progress.Report(z / y);
+            });
+            progress.Dispose();
+
             Console.ReadKey();
         }
     }

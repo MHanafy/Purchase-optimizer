@@ -2,17 +2,24 @@
 
 namespace Gluh.TechnicalTest.Domain.BruteForce
 {
-    //To save time, majority of below code is adapted from https://www.techtalkz.com/threads/all-possible-combinations-of-multiple-lists.77236/,
+    //part of below code is adapted from https://www.techtalkz.com/threads/all-possible-combinations-of-multiple-lists.77236/,
     public class Premuting<T>
     {
         public Premuting(T[][] data)
         {
             _data = data;
+            long length = 1;
+            for (int i = 0; i < _data.Length; i++)
+            {
+                length *= _data[i].Length;
+            }
+            _total = length;
         }
         private readonly T[][] _data;
+        private long _total;
 
         private T[][] _premutations;
-        private int _index;
+        private long _index;
         public delegate void Processor(T[] a);
 
         /// <summary>
@@ -22,12 +29,11 @@ namespace Gluh.TechnicalTest.Domain.BruteForce
         public T[][] GetPremutations()
         {
             if (_premutations != null) return _premutations;
-            var length = 1;
-            for (int i = 0; i < _data.Length; i++)
+            if(_total > int.MaxValue)
             {
-                length *= _data[i].Length;
+                throw new InvalidOperationException($"Can't process mutations that exceed {int.MaxValue}, use {nameof(Premute)} instead.");
             }
-            _premutations = new T[length][];
+            _premutations = new T[_total][];
             Premute(_data);
             return _premutations;
         }
@@ -36,19 +42,21 @@ namespace Gluh.TechnicalTest.Domain.BruteForce
         /// Runs the premutation and executes provided action for each result, without storing the results
         /// </summary>
         /// <param name="action"></param>
-        public void Premute(Action<T[]> action)
+        public void Premute(Action<T[], long, long> action)
         {
+            current = 0;
             Premute(new T[_data.Length], 0, _data, action);
         }
 
-        private void Premute(T[] result, int index, T[][] data, Action<T[]> action)
+        private void Premute(T[] result, int index, T[][] data, Action<T[], long, long> action)
         {
             foreach (T v in data[index])
             {
                 result[index] = v;
                 if (index >= data.Length - 1)
                 {
-                    action((T[]) result.Clone());
+                    current++;
+                    action((T[]) result.Clone(), _total, current);
                 }
                 else
                 {
@@ -56,12 +64,15 @@ namespace Gluh.TechnicalTest.Domain.BruteForce
                 }
             }
         }
+
+        long current;
         private void Premute(T[][] data)
         {
+            current = 0;
             Premute(new T[data.Length], 0, data, AddMutation);
         }
 
-        private void AddMutation(T[] mutation)
+        private void AddMutation(T[] mutation, long current, long total)
         { 
             _premutations[_index] = mutation;
             _index++;

@@ -30,5 +30,10 @@ namespace Gluh.TechnicalTest.Domain
         public ProductType Type { get; private set; }
         //This is virtual incase a derived product needs to have a different rule.
         public virtual bool ShippingEligible => Type == ProductType.Physical;
+
+        public override string ToString()
+        {
+            return $"{Name} - {Cost:c}";
+        }
     }
 }

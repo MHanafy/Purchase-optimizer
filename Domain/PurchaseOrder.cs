@@ -1,16 +1,11 @@
 ﻿using Gluh.TechnicalTest.Database;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Gluh.TechnicalTest.Domain
 {
-
-    public interface IUnfulfilledOrder
-    {
-        IImmutableList<IPurchaseOrderLine> Lines { get; }
-    }
-
-    public interface IPurchaseOrder : IUnfulfilledOrder
+    public interface IPurchaseOrder : IOrderBase<IPurchaseOrderLine>
     {
         Supplier Supplier { get; }
         decimal SubTotal { get; }
@@ -26,12 +21,20 @@ namespace Gluh.TechnicalTest.Domain
         void Add(IPurchaseOrderLine line);
     }
 
-    public class PurchaseOrder : IPurchaseOrder
+    public class PurchaseOrder : OrderBase<IPurchaseOrderLine>, IPurchaseOrder
     {
-        public Supplier Supplier { get; private set; }
+        public PurchaseOrder(Supplier supplier) : base()
+        {
+            Supplier = supplier;
+        }
+        public PurchaseOrder(Supplier supplier, IEnumerable<IPurchaseOrderLine> lines) : base(lines)
+        {
+            Supplier = supplier;
+            _shippingEligible = _lines.Any(x => x.Product.ShippingEligible);
+            SubTotal = _lines.Sum(x => x.Total);
+        }
 
-        private readonly List<IPurchaseOrderLine> _lines;
-        public IImmutableList<IPurchaseOrderLine> Lines => _lines.ToImmutableList();
+        public Supplier Supplier { get; }
 
         public decimal SubTotal { get; private set; }
 
@@ -43,9 +46,10 @@ namespace Gluh.TechnicalTest.Domain
         /// Indicates there's at least a single line for a shipping eligible product.
         /// </summary>
         private bool _shippingEligible;
-        public void Add(IPurchaseOrderLine line)
+
+
+        protected override void OnLineAdded(IPurchaseOrderLine line)
         {
-            _lines.Add(line);
             //This flag changes to true only, as we don't support removing lines.
             if (line.Product.ShippingEligible) _shippingEligible = true;
             SubTotal += line.Total;

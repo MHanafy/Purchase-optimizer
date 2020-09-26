@@ -27,5 +27,10 @@ namespace Gluh.TechnicalTest.Database
         /// Represents the maximum purchase order value for the shipping cost to apply, otherwise ShippingCost is 0
         /// </summary>
         public decimal ShippingCostMaxOrderValue { get; set; }
+
+        public override string ToString()
+        {
+            return $"{ID} - {Name}";
+        }
     }
 }

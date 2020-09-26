@@ -3,27 +3,25 @@
 namespace Gluh.TechnicalTest.Domain
 {
 
-    public interface IPurchaseOrderLine
+    public interface IPurchaseOrderLine : IOrderLineBase
     {
-        IProduct Product { get; }
-        int Quantity { get; }
         decimal Total { get; }
+        Supplier Supplier { get; }
     }
 
-    public class PurchaseOrderLine : IPurchaseOrderLine
+    public class PurchaseOrderLine : OrderLineBase, IPurchaseOrderLine
     {
-        public PurchaseOrderLine(Supplier supplier, IProduct product, int quantity)
+        public PurchaseOrderLine(Supplier supplier, IProduct product, int quantity) : base(product, quantity)
         {
             Supplier = supplier;
-            Product = product;
-            Quantity = quantity;
         }
-        Supplier Supplier { get; }
-
-        public IProduct Product { get; private set; }
-
-        public int Quantity {get; private set; }
+        public Supplier Supplier { get;}
 
         public decimal Total => Product.Cost * Quantity;
+
+        public override string ToString()
+        {
+            return $"{Supplier.Name} - {Quantity} - {Total:c}";
+        }
     }
 }
