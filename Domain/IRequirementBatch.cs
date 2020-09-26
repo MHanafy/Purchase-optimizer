@@ -24,5 +24,8 @@ namespace Gluh.TechnicalTest.Domain
         /// <param name="product"></param>
         /// <returns></returns>
         IEnumerable<Stock> GetAvailableStock(IProduct product, Supplier supplier = null);
+        int UnallocatedCount { get; }
+        int UnfulfilledCount { get; }
+        int AllocatedCount { get; }
     }
 }

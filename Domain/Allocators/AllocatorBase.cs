@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Gluh.TechnicalTest.Domain
 {
     public interface IAllocator
     {
-        void Allocate(IRequirementBatch batch);
+        string Allocate(IRequirementBatch batch);
         /// <summary>
         /// Defines order of execution, lower priority executes first.
         /// </summary>
@@ -34,11 +35,17 @@ namespace Gluh.TechnicalTest.Domain
 
         protected abstract void AllocateAll(IRequirementBatch batch);
   
-        public void Allocate(IRequirementBatch batch)
+        public string Allocate(IRequirementBatch batch)
         {
+            var stopWatch = new Stopwatch();
+            var unallocated = batch.UnallocatedCount;
             OnAllocating(batch);
+            stopWatch.Start();
             AllocateAll(batch);
+            stopWatch.Stop();
             OnProgress(true);
+            return $"{GetType().Name} allocated {unallocated - batch.UnallocatedCount} units in {stopWatch.ElapsedMilliseconds:n0} ms.\r\n" +
+                $"** Currnt state - Allocated: {batch.AllocatedCount} Unallocated: {batch.UnallocatedCount} Unfulfilled: {batch.UnfulfilledCount}\r\n";
         }
 
         /// <summary>

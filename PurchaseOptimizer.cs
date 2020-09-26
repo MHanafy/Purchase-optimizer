@@ -3,6 +3,9 @@ using Gluh.TechnicalTest.Models;
 using Gluh.TechnicalTest.Domain;
 using System.Linq;
 using Gluh.TechnicalTest.Domain.Allocators;
+using System.Text;
+using System;
+using Gluh.TechnicalTest.UI;
 
 namespace Gluh.TechnicalTest
 {
@@ -41,17 +44,28 @@ namespace Gluh.TechnicalTest
         public void Optimize(List<PurchaseRequirement> purchaseRequirements)
         {
             var batch = new RequirementBatch(purchaseRequirements);
-
+            StringBuilder summary = new StringBuilder();
             _progress.Show();
             foreach (var allocator in _allocators)
             {
-                allocator.Allocate(batch);
+                try
+                {
+                    summary.Append(allocator.Allocate(batch));
+                }
+                catch (Exception ex)
+                {
+                    summary.Append(ex);
+                }
             }
             _progress.Hide();
+            Console.Write($"\r\n{summary}\r\n");
+            _orderPrinter.Print(batch.PurchaseOrders);
+            _orderPrinter.Print(batch.UnfulfilledOrder);
         }
 
         private readonly List<IAllocator> _allocators;
         private readonly ProgressBar _progress;
+        private readonly IOrderPrinter _orderPrinter;
         public PurchaseOptimizer()
         {
             _allocators = GetAllocators().OrderBy(x => x.Priority).ToList();
@@ -60,6 +74,7 @@ namespace Gluh.TechnicalTest
                 allocator.Progress += Allocator_Progress;
             }
             _progress = new ProgressBar(false);
+            _orderPrinter = new OrderPrinter();
         }
 
         private void Allocator_Progress(object sender, ProgressEventArgs e)

@@ -63,7 +63,7 @@ namespace Gluh.TechnicalTest.Domain.Allocators
                 _cheapest = supplierLines;
                 _lowestTotal = cost;
             }
-            OnProgress(false, current, total, $"trying {current:n0}/{total:n0} combination to save you money");
+            OnProgress(false, current, total, $"trying {current:n0}/{total:n0} combinations to save you money");
         }
 
         private PurchaseOrderLine[][] GetAllPremutations(IRequirement requirement, IList<Stock> stocks)
