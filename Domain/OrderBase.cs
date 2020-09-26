@@ -16,7 +16,7 @@ namespace Gluh.TechnicalTest.Domain
     {
         public OrderBase()
         {
-
+            _lines = new List<T>();
         }
         public OrderBase(IEnumerable<T> lines)
         {
@@ -27,7 +27,6 @@ namespace Gluh.TechnicalTest.Domain
 
         public void Add(T line)
         {
-            if (_lines == null) _lines = new List<T>();
             _lines.Add(line);
             OnLineAdded(line);
         }

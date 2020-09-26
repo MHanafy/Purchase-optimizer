@@ -21,5 +21,10 @@ namespace Gluh.TechnicalTest.Domain
         public int Quantity { get; set; }
 
         public List<IPurchaseOrder> PurchaseOrders { get; }
+
+        public override string ToString()
+        {
+            return $"{Quantity} x {Product}";
+        }
     }
 }

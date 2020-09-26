@@ -27,6 +27,11 @@ namespace Gluh.TechnicalTest.Domain
         public decimal Cost { get; }
 
         public Supplier Supplier { get;  }
+
+        public override string ToString()
+        {
+            return $"{Supplier} - {Quantity} at {Cost:c}";
+        }
     }
 
 }

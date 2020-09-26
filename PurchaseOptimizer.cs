@@ -44,10 +44,10 @@ namespace Gluh.TechnicalTest
         public void Optimize(List<PurchaseRequirement> purchaseRequirements)
         {
             var batch = new RequirementBatch(purchaseRequirements);
-            var processed = Filter(purchaseRequirements, out var purchaseOrder, out var unfulfilledOrder);
-            foreach (var req in processed)
+
+            foreach (var allocator in _allocators)
             {
-                purchaseRequirements.Remove(req);
+                allocator.Allocate(batch);
             }
 
             var requirements = purchaseRequirements.Select(x=>GetAllPremutations(x)).Where(x=>x.Length>0).ToArray();
@@ -60,52 +60,16 @@ namespace Gluh.TechnicalTest
            
         }
 
-        /// <summary>
-        /// Removes requirements with zero stock, and fulfills requirements from cheapest vendors with zero shipping
-        /// </summary>
-        /// <param name="requirements"></param>
-        /// <returns></returns>
-        private List<PurchaseRequirement> Filter(List<PurchaseRequirement> requirements, 
-            out Dictionary<Supplier, IPurchaseOrder> purchaseOrders, out IUnfulfilledOrder unfulfilledOrder)
+        private readonly List<IAllocator> _allocators;
+
+        public PurchaseOptimizer()
         {
-            purchaseOrders = new Dictionary<Supplier,IPurchaseOrder>();
-            unfulfilledOrder = new UnfulfilledOrder();
-            var processed = new List<PurchaseRequirement>();
-            foreach (var req in requirements)
-            {
-                if (req.Product.Stock.Sum(x => x.StockOnHand) == 0)
-                {
-                    unfulfilledOrder.Add(new OrderLineBase(req.Product.ToProduct(), req.Quantity));
-                    processed.Add(req);
-                }
-                
-                var stocks = req.Product.Stock
-                    .Where(x => x.StockOnHand > 0)
-                    .OrderByDescending(x => x.Cost);
+            _allocators = GetAllocators().OrderBy(x => x.Priority).ToList();
+        }
 
-                var allocated = 0;
-                foreach (var stock in stocks)
-                {
-                    var quantity = Math.Min(req.Quantity - allocated, stock.StockOnHand);
-                    var cost = quantity * stock.Cost;
-                    if (stock.Supplier.ShippingCost == 0 || stock.Supplier.ShippingCostMaxOrderValue < cost)
-                    {
-                        allocated += quantity;
-                        if (!purchaseOrders.ContainsKey(stock.Supplier))
-                        {
-                            purchaseOrders.Add(stock.Supplier, new PurchaseOrder(stock.Supplier));
-                        }
-                        var line = new PurchaseOrderLine(stock.Supplier, stock.Product.ToProduct(), stock.Cost, req.Quantity);
-                        purchaseOrders[stock.Supplier].Add(line);
-                        if (quantity == allocated) break;
-                    }
-                    else break;
-                }
-
-                req.Quantity -= allocated;
-                if (req.Quantity == 0) processed.Add(req);
-            }
-            return processed;
+        protected virtual IEnumerable<IAllocator> GetAllocators()
+        {
+            return new List<IAllocator> {new BasicAllocator(), new ExpandingAllocator() };
         }
 
         private List<PurchaseOrder> maxPo;

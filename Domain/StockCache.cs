@@ -8,7 +8,7 @@ namespace Gluh.TechnicalTest.Domain
     public interface IStockCache
     {
         /// <summary>
-        /// Returns available stock in descending order based on cost.
+        /// Returns available stock cheapest first.
         /// </summary>
         /// <param name="product"></param>
         /// <returns></returns>
@@ -35,8 +35,11 @@ namespace Gluh.TechnicalTest.Domain
 
         public IEnumerable<Stock> GetAvailableStock(IProduct product, Supplier supplier = null)
         {
-            return supplier == null ? _stock[product].Where(x=>x.Quantity > 0)
+            if (!_stock.ContainsKey(product)) return Enumerable.Empty<Stock>();
+            var stock = supplier == null 
+                ? _stock[product].Where(x => x.Quantity > 0)
                 : _stock[product].Where(x => x.Supplier == supplier && x.Quantity > 0);
+            return stock.OrderBy(x => x.Cost);
         }
     }
 }
