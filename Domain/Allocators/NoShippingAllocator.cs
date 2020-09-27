@@ -7,7 +7,7 @@ namespace Gluh.TechnicalTest.Domain
     /// <para>Tries to fulfull all possible requirements from the cheapest suppliers that either have no shipping cost, or has free shipping for the requirement.</para>
     /// i.e. shipping cost is zero, or total exceeds ShippingCostMaxOrderValue, hence can't guarantee full allocation
     /// </summary>
-    class NoShippingAllocator : SimpleAllocator
+    public class NoShippingAllocator : SimpleAllocator
     {
         public NoShippingAllocator(int priority = 10) : base(priority)
         {

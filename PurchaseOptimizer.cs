@@ -34,6 +34,12 @@ namespace Gluh.TechnicalTest
      * 2. Instead of using a mapper I opted for a helper class.ideally, I'd either make the Data layer return domain objects, or use a mapper to do the task.
      * 3. I won't perform mapping or create domain objects if they'll be identical to database objects, e.g. Supplier; 
      * this breaks DDD as it mixes between domain and Data layers, but I'm doing it for simplicity.
+     * 4. Ideally, I would create separate projects for better code organization and loose coupling; I didn't do that
+     * 5. I used console.WriteLine instead of a proper logging framework, and didn't use a DI utility.
+     * 
+     * Testing:
+     * 1. I added minimal unit tests just to show how I test; production code should have much more coverage.
+     * 2. My preference is AAA style, and following the test pyramid (vast majority of unit tests, minimal integration, and hopefully no UI :) )
      */
     public class PurchaseOptimizer
     {
