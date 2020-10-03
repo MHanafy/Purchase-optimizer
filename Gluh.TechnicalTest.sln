@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30320.27
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gluh.TechnicalTest", "Gluh.TechnicalTest.csproj", "{9A23369C-3B3E-48F9-B30E-152711B2822A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gluh.TechnicalTest.Tests", "..\Gluh.TechnicalTest.Tests\Gluh.TechnicalTest.Tests.csproj", "{25F6FFDB-6AE5-440F-867C-AE7C3E76757D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gluh.TechnicalTest.Tests", "Gluh.TechnicalTest.Tests\Gluh.TechnicalTest.Tests.csproj", "{EB818EBE-56CC-4912-B0B1-54761FA91EEA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{9A23369C-3B3E-48F9-B30E-152711B2822A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A23369C-3B3E-48F9-B30E-152711B2822A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A23369C-3B3E-48F9-B30E-152711B2822A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{25F6FFDB-6AE5-440F-867C-AE7C3E76757D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{25F6FFDB-6AE5-440F-867C-AE7C3E76757D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{25F6FFDB-6AE5-440F-867C-AE7C3E76757D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{25F6FFDB-6AE5-440F-867C-AE7C3E76757D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB818EBE-56CC-4912-B0B1-54761FA91EEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB818EBE-56CC-4912-B0B1-54761FA91EEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB818EBE-56CC-4912-B0B1-54761FA91EEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB818EBE-56CC-4912-B0B1-54761FA91EEA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

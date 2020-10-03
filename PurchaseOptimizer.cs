@@ -67,6 +67,8 @@ namespace Gluh.TechnicalTest
             Console.Write($"\r\n{summary}\r\n");
             _orderPrinter.Print(batch.PurchaseOrders);
             _orderPrinter.Print(batch.UnfulfilledOrder);
+
+            Console.ReadLine();
         }
 
         private readonly List<IAllocator> _allocators;
